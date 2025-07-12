@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stackit Q&A Platform</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #4f46e5;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --bg: #f8fafc;
+      --white: #ffffff;
+      --gray: #e2e8f0;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    a {
+      text-decoration: none;
+      color: var(--primary);
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    
+    .main-layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Navigation */
+    nav {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: var(--white);
+      padding: 1rem 0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--white);
+    }
+    
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .nav-user img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      background: var(--white);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      height: fit-content;
+      position: sticky;
+      top: 80px;
+    }
+    
+    .sidebar-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .sidebar-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+    
+    .sidebar-links {
+      list-style: none;
+    }
+    
+    .sidebar-links li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .sidebar-links a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      color: var(--text-light);
+    }
+    
+    .sidebar-links a:hover {
+      background-color: var(--gray);
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .sidebar-links a.active {
+      background-color: var(--gray);
+      color: var(--primary);
+      font-weight: 500;
+    }
+    
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--white);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--gray);
+      color: var(--text);
+    }
+    
+    .btn-outline:hover {
+      background-color: var(--gray);
+    }
+    
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .btn-vote {
+      padding: 0.25rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+    
+    .btn-vote:hover {
+      color: var(--primary);
+    }
+    
+    .btn-vote.upvoted {
+      color: var(--success);
+    }
+    
+    .btn-vote.downvoted {
+      color: var(--danger);
+    }
+    
+    /* Cards */
+    .card {
+      background-color: var(--white);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .question-card {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 1rem;
+    }
+    
+    .question-stats {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-light);
+      font-size: 0.875rem;
+    }
+    
+    .question-votes {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .question-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .question-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .question-body {
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .question-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+    
+    .question-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .question-meta {
+      color: var(--text-light);
+    }
+    
+    /* Tags */
+    .tag {
+      background-color: #dbeafe;
+      color: #1e40af;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .tag:hover {
+      background-color: #bfdbfe;
+    }
+    
+    /* Forms */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--gray);
+      border-radius: 0.375rem;
+      font-size: 1rem;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    textarea.form-control {
+      min-height: 150px;
+      resize: vertical;
+    }
+    
+    /* Utility */
+    .text-success {
+      color: var(--success);
+    }
+    
+    .text-danger {
+      color: var(--danger);
+    }
+    
+    .text-warning {
+      color: var(--warning);
+    }
+    
+    .text-muted {
+      color: var(--text-light);
+    }
+    
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 1rem; }
+    .mt-4 { margin-top: 1.5rem; }
+    .mt-5 { margin-top: 2rem; }
+    
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 1rem; }
+    .mb-4 { margin-bottom: 1.5rem; }
+    .mb-5 { margin-bottom: 2rem; }
+    
+    .flex {
+      display: flex;
+    }
+    
+    .items-center {
+      align-items: center;
+    }
+    
+    .gap-1 { gap: 0.25rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 1rem; }
+    .gap-4 { gap: 1.5rem; }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .badge-success {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    
+    /* Answer accepted */
+    .accepted-answer {
+      border: 2px solid var(--success);
+      position: relative;
+    }
+    
+    .accepted-answer::before {
+      content: "✓ Accepted";
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background-color: var(--success);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useContext, createContext } = React;
+
+    // Mock database with more questions and answers
+    const mockDB = {
+      questions: [
+        {
+          id: '1',
+          title: 'How to create a reusable React component?',
+          description: "I'm building a large React application and want to create components that can be reused across different parts of the app. What are the best practices for creating truly reusable components in React?",
+          tags: ['react', 'javascript', 'frontend'],
+          authorId: 'user2',
+          votes: 15,
+          views: 124,
+          answers: 3,
+          createdAt: new Date('2023-05-15'),
+          updatedAt: new Date('2023-05-16')
+        },
+        {
+          id: '2',
+          title: 'What is the difference between useEffect and useLayoutEffect?',
+          description: "I've been using useEffect in my React projects but recently heard about useLayoutEffect. When should I use one over the other? What are the key differences in their behavior?",
+          tags: ['react', 'hooks', 'javascript'],
+          authorId: 'user3',
+          votes: 8,
+          views: 87,
+          answers: 2,
+          createdAt: new Date('2023-05-10'),
+          updatedAt: new Date('2023-05-12')
+        },
+        {
+          id: '3',
+          title: 'Best way to handle authentication in Next.js applications',
+          description: "I'm building a Next.js application with both client-side and server-side rendering. What's the most secure and efficient way to handle user authentication across both environments?",
+          tags: ['nextjs', 'authentication', 'security'],
+          authorId: 'user1',
+          votes: 12,
+          views: 156,
+          answers: 5,
+          createdAt: new Date('2023-05-05'),
+          updatedAt: new Date('2023-05-08')
+        },
+        {
+          id: '4',
+          title: 'How to optimize performance in large React applications?',
+          description: "Our React application has grown significantly and we're starting to see performance issues. What strategies and tools would you recommend to identify and fix performance bottlenecks?",
+          tags: ['react', 'performance', 'optimization'],
+          authorId: 'user4',
+          votes: 20,
+          views: 210,
+          answers: 7,
+          createdAt: new Date('2023-04-28'),
+          updatedAt: new Date('2023-05-02')
+        },
+        {
+          id: '5',
+          title: 'Understanding React Fiber architecture',
+          description: "I've heard about React Fiber but don't fully understand how it works. Can someone explain the key concepts of Fiber and how it improves React's rendering process?",
+          tags: ['react', 'architecture', 'internals'],
+          authorId: 'user2',
+          votes: 5,
+          views: 73,
+          answers: 1,
+          createdAt: new Date('2023-04-20'),
+          updatedAt: new Date('2023-04-22')
+        }
+      ],
+      answers: [
+        {
+          id: '1',
+          questionId: '1',
+          content: "To create reusable React components, focus on these principles:\n1. Single Responsibility - Each component should do one thing well\n2. Controlled vs Uncontrolled - Prefer controlled components when possible\n3. Custom Hooks - Extract reusable logic into custom hooks\n4. Prop Types - Use PropTypes or TypeScript for better documentation\n5. Composition - Use children prop and render props for flexibility",
+          authorId: 'user3',
+          votes: 8,
+          isAccepted: true,
+          createdAt: new Date('2023-05-15'),
+          updatedAt: new Date('2023-05-16')
+        },
+        {
+          id: '2',
+          questionId: '1',
+          content: "Also consider using the Context API for deeply nested components that need to share state without prop drilling.",
+          authorId: 'user1',
+          votes: 3,
+          isAccepted: false,
+          createdAt: new Date('2023-05-16'),
+          updatedAt: new Date('2023-05-16')
+        },
+        {
+          id: '3',
+          questionId: '2',
+          content: "useEffect runs asynchronously after the browser paints, while useLayoutEffect runs synchronously before painting. Use useLayoutEffect when you need to read layout from the DOM and make synchronous updates to prevent visual flickering.",
+          authorId: 'user4',
+          votes: 6,
+          isAccepted: true,
+          createdAt: new Date('2023-05-10'),
+          updatedAt: new Date('2023-05-11')
+        },
+        {
+          id: '4',
+          questionId: '3',
+          content: "For Next.js authentication, I recommend using NextAuth.js. It supports both client and server-side authentication, works with many providers, and handles sessions securely.",
+          authorId: 'user2',
+          votes: 10,
+          isAccepted: true,
+          createdAt: new Date('2023-05-05'),
+          updatedAt: new Date('2023-05-07')
+        },
+        {
+          id: '5',
+          questionId: '4',
+          content: "Start with React DevTools Profiler to identify slow components. Then implement:\n1. React.memo for component memoization\n2. useMemo/useCallback for expensive calculations\n3. Code splitting with React.lazy\n4. Virtualization for long lists\n5. Avoid inline function definitions in render",
+          authorId: 'user3',
+          votes: 12,
+          isAccepted: false,
+          createdAt: new Date('2023-04-28'),
+          updatedAt: new Date('2023-04-30')
+        }
+      ],
+      users: [
+        {
+          id: 'user1',
+          name: 'Sarah Johnson',
+          email: 'sarah@example.com',
+          avatar: 'https://randomuser.me/api/portraits/women/43.jpg',
+          reputation: 1245,
+          role: 'user'
+        },
+        {
+          id: 'user2',
+          name: 'Michael Chen',
+          email: 'michael@example.com',
+          avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+          reputation: 876,
+          role: 'user'
+        },
+        {
+          id: 'user3',
+          name: 'David Wilson',
+          email: 'david@example.com',
+          avatar: 'https://randomuser.me/api/portraits/men/65.jpg',
+          reputation: 1532,
+          role: 'moderator'
+        },
+        {
+          id: 'user4',
+          name: 'Emily Davis',
+          email: 'emily@example.com',
+          avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+          reputation: 2107,
+          role: 'admin'
+        }
+      ],
+      tags: [
+        { name: 'react', description: 'A JavaScript library for building user interfaces', questions: 1254 },
+        { name: 'javascript', description: 'A programming language of the web', questions: 3421 },
+        { name: 'nextjs', description: 'The React framework for production', questions: 876 },
+        { name: 'frontend', description: 'Client-side web development', questions: 1567 },
+        { name: 'hooks', description: 'React Hooks API', questions: 543 },
+        { name: 'performance', description: 'Optimizing application speed and efficiency', questions: 765 },
+        { name: 'authentication', description: 'User login and security', questions: 432 },
+        { name: 'architecture', description: 'System design and structure', questions: 321 }
+      ]
+    };
+
+    // Auth Context
+    const AuthContext = createContext();
+
+    const AuthProvider = ({ children }) => {
+      const [user, setUser] = useState(null);
+      const [loading, setLoading] = useState(true);
+      
+      // Track voted posts for each user
+      const [votedPosts, setVotedPosts] = useState({
+        questions: {},
+        answers: {}
+      });
+
+      useEffect(() => {
+        // Simulate loading user from session
+        setTimeout(() => {
+          setUser(mockDB.users[0]); // Default to first user for demo
+          setLoading(false);
+        }, 500);
+      }, []);
+
+      const login = (email, password) => {
+        const foundUser = mockDB.users.find(u => u.email === email);
+        if (foundUser) {
+          setUser(foundUser);
+          return true;
+        }
+        return false;
+      };
+      
+      const logout = () => {
+        setUser(null);
+      };
+      
+      const register = (name, email, password) => {
+        const newUser = {
+          id: `user${mockDB.users.length + 1}`,
+          name,
+          email,
+          avatar: `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 100)}.jpg`,
+          reputation: 1,
+          role: 'user'
+        };
+        mockDB.users.push(newUser);
+        setUser(newUser);
+        return true;
+      };
+
+      const voteQuestion = (questionId, value) => {
+        if (!user) return false;
+        
+        // Check if user already voted
+        const currentVote = votedPosts.questions[questionId] || 0;
+        
+        // Calculate net change
+        let netChange = 0;
+        if (currentVote === value) {
+          // Undo vote
+          netChange = -value;
+          delete votedPosts.questions[questionId];
+        } else {
+          // Change vote
+          netChange = value - currentVote;
+          votedPosts.questions[questionId] = value;
+        }
+        
+        // Update local state
+        setVotedPosts({...votedPosts});
+        
+        // Find and update question
+        const question = mockDB.questions.find(q => q.id === questionId);
+        if (question) {
+          question.votes += netChange;
+          return true;
+        }
+        return false;
+      };
+
+      const voteAnswer = (answerId, value) => {
+        if (!user) return false;
+        
+        // Check if user already voted
+        const currentVote = votedPosts.answers[answerId] || 0;
+        
+        // Calculate net change
+        let netChange = 0;
+        if (currentVote === value) {
+          // Undo vote
+          netChange = -value;
+          delete votedPosts.answers[answerId];
+        } else {
+          // Change vote
+          netChange = value - currentVote;
+          votedPosts.answers[answerId] = value;
+        }
+        
+        // Update local state
+        setVotedPosts({...votedPosts});
+        
+        // Find and update answer
+        const answer = mockDB.answers.find(a => a.id === answerId);
+        if (answer) {
+          answer.votes += netChange;
+          return true;
+        }
+        return false;
+      };
+
+      const acceptAnswer = (answerId, questionId) => {
+        if (!user) return false;
+        
+        const question = mockDB.questions.find(q => q.id === questionId);
+        const answer = mockDB.answers.find(a => a.id === answerId);
+        
+        if (!question || !answer || question.authorId !== user.id) {
+          return false;
+        }
+        
+        // Unaccept any previously accepted answer
+        const prevAccepted = mockDB.answers.find(a => 
+          a.questionId === questionId && a.isAccepted
+        );
+        if (prevAccepted) {
+          prevAccepted.isAccepted = false;
+        }
+        
+        // Accept the new answer
+        answer.isAccepted = true;
+        question.acceptedAnswerId = answerId;
+        return true;
+      };
+
+      return (
+        <AuthContext.Provider value={{ 
+          user, 
+          loading, 
+          login, 
+          logout, 
+          register,
+          votedPosts,
+          voteQuestion,
+          voteAnswer,
+          acceptAnswer
+        }}>
+          {!loading && children}
+        </AuthContext.Provider>
+      );
+    };
+
+    const useAuth = () => {
+      return useContext(AuthContext);
+    };
+
+    // Navigation Components
+    const Navbar = () => {
+      const { user, logout } = useAuth();
+      const navigate = (path) => {
+        window.location.hash = path;
+      };
+
+      return (
+        <nav>
+          <div className="container nav-container">
+            <div className="nav-logo" onClick={() => navigate('#/')}>Stackit</div>
+            
+            <div className="nav-links">
+              {user ? (
+                <>
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={() => navigate('#/ask')}
+                  >
+                    <i className="fas fa-plus"></i> Ask Question
+                  </button>
+                  
+                  <div className="nav-user">
+                    <img src={user.avatar} alt={user.name} />
+                    <span>{user.name}</span>
+                    <button 
+                      onClick={logout}
+                      className="btn btn-outline"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => navigate('#/login')}
+                    className="btn btn-outline"
+                  >
+                    Login
+                  </button>
+                  <button 
+                    onClick={() => navigate('#/register')}
+                    className="btn btn-primary"
+                  >
+                    Register
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </nav>
+      );
+    };
+
+    const Sidebar = () => {
+      const [activeTab, setActiveTab] = useState('home');
+      
+      useEffect(() => {
+        const hash = window.location.hash;
+        if (hash === '#/' || hash === '') {
+          setActiveTab('home');
+        } else if (hash === '#/tags') {
+          setActiveTab('tags');
+        } else if (hash === '#/users') {
+          setActiveTab('users');
+        }
+      }, []);
+
+      const navigate = (path) => {
+        window.location.hash = path;
+      };
+
+      return (
+        <div className="sidebar">
+          <div className="sidebar-section">
+            <ul className="sidebar-links">
+              <li>
+                <a 
+                  href="#/" 
+                  className={activeTab === 'home' ? 'active' : ''}
+                  onClick={() => setActiveTab('home')}
+                >
+                  <i className="fas fa-home"></i> Home
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#/tags" 
+                  className={activeTab === 'tags' ? 'active' : ''}
+                  onClick={() => setActiveTab('tags')}
+                >
+                  <i className="fas fa-tags"></i> Tags
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#/users" 
+                  className={activeTab === 'users' ? 'active' : ''}
+                  onClick={() => setActiveTab('users')}
+                >
+                  <i className="fas fa-users"></i> Users
+                </a>
+              </li>
+            </ul>
+          </div>
+          
+          <div className="sidebar-section">
+            <h3 className="sidebar-title">Popular Tags</h3>
+            <div className="question-tags">
+              {mockDB.tags.slice(0, 8).map(tag => (
+                <a 
+                  key={tag.name} 
+                  href={`#/tags/${tag.name}`}
+                  className="tag"
+                >
+                  {tag.name} <span className="text-muted">{tag.questions}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Question Components
+    const QuestionList = () => {
+      const [questions, setQuestions] = useState([]);
+      const [filter, setFilter] = useState('newest');
+      const [tagFilter, setTagFilter] = useState(null);
+      const { user, voteQuestion, votedPosts } = useAuth();
+
+      useEffect(() => {
+        let filteredQuestions = [...mockDB.questions];
+        
+        if (tagFilter) {
+          filteredQuestions = filteredQuestions.filter(q => 
+            q.tags.includes(tagFilter)
+          );
+        }
+        
+        if (filter === 'newest') {
+          filteredQuestions.sort((a, b) => b.createdAt - a.createdAt);
+        } else if (filter === 'votes') {
+          filteredQuestions.sort((a, b) => b.votes - a.votes);
+        } else if (filter === 'unanswered') {
+          filteredQuestions = filteredQuestions.filter(q => q.answers === 0);
+        }
+        
+        setQuestions(filteredQuestions);
+      }, [filter, tagFilter]);
+
+      const navigate = (path) => {
+        window.location.hash = path;
+      };
+
+      const handleVote = (questionId, value) => {
+        if (voteQuestion(questionId, value)) {
+          // Force update by creating new array
+          setQuestions([...questions]);
+        }
+      };
+
+      return (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold">
+              {tagFilter ? `Questions tagged [${tagFilter}]` : 'All Questions'}
+            </h1>
+            
+            <div className="flex gap-2">
+              <select 
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="form-control"
+                style={{ width: 'auto' }}
+              >
+                <option value="newest">Newest</option>
+                <option value="votes">Most Votes</option>
+                <option value="unanswered">Unanswered</option>
+              </select>
+              
+              <button 
+                className="btn btn-primary"
+                onClick={() => navigate('#/ask')}
+              >
+                Ask Question
+              </button>
+            </div>
+          </div>
+          
+          <div className="mb-4">
+            Showing {questions.length} {questions.length === 1 ? 'question' : 'questions'}
+          </div>
+          
+          {questions.map(question => {
+            const author = mockDB.users.find(u => u.id === question.authorId);
+            const userVote = votedPosts.questions[question.id] || 0;
+            
+            return (
+              <div key={question.id} className="question-card card">
+                <div className="question-stats">
+                  <div className="question-votes">
+                    {question.votes}
+                    <div className="text-sm">votes</div>
+                  </div>
+                  <div className="text-center">
+                    {question.answers}
+                    <div className="text-sm">answers</div>
+                  </div>
+                  <div className="text-center">
+                    {question.views}
+                    <div className="text-sm">views</div>
+                  </div>
+                </div>
+                
+                <div className="question-content">
+                  <h3 className="question-title">
+                    <a href={`#/question/${question.id}`}>{question.title}</a>
+                  </h3>
+                  <div className="question-body">
+                    {question.description.substring(0, 200)}...
+                  </div>
+                  
+                  <div className="question-footer">
+                    <div className="question-tags">
+                      {question.tags.map(tag => (
+                        <a 
+                          key={tag} 
+                          href={`#/tags/${tag}`}
+                          className="tag"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setTagFilter(tag);
+                          }}
+                        >
+                          {tag}
+                        </a>
+                      ))}
+                    </div>
+                    
+                    <div className="question-meta">
+                      <span>Asked by </span>
+                      <a href={`#/users/${author.id}`}>{author.name}</a>
+                      <span> on {question.createdAt.toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    };
+
+    const QuestionDetail = ({ questionId }) => {
+      const [question, setQuestion] = useState(null);
+      const [answers, setAnswers] = useState([]);
+      const [answerContent, setAnswerContent] = useState('');
+      const [error, setError] = useState('');
+      const { user, voteQuestion, voteAnswer, acceptAnswer, votedPosts } = useAuth();
+
+      useEffect(() => {
+        const foundQuestion = mockDB.questions.find(q => q.id === questionId);
+        const foundAnswers = mockDB.answers.filter(a => a.questionId === questionId)
+          .sort((a, b) => {
+            if (a.isAccepted) return -1;
+            if (b.isAccepted) return 1;
+            return b.votes - a.votes;
+          });
+        
+        setQuestion(foundQuestion);
+        setAnswers(foundAnswers);
+      }, [questionId]);
+
+      const handleSubmitAnswer = (e) => {
+        e.preventDefault();
+        
+        if (!answerContent || answerContent.length < 20) {
+          setError('Answer must be at least 20 characters');
+          return;
+        }
+        
+        const newAnswer = {
+          id: `a${mockDB.answers.length + 1}`,
+          questionId,
+          content: answerContent,
+          authorId: user.id,
+          votes: 0,
+          isAccepted: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        
+        mockDB.answers.push(newAnswer);
+        question.answers += 1;
+        setAnswers([...answers, newAnswer]);
+        setAnswerContent('');
+        setError('');
+      };
+
+      const handleVoteQuestion = (value) => {
+        if (voteQuestion(question.id, value)) {
+          setQuestion({...question});
+        }
+      };
+
+      const handleVoteAnswer = (answerId, value) => {
+        if (voteAnswer(answerId, value)) {
+          setAnswers([...answers]);
+        }
+      };
+
+      const handleAcceptAnswer = (answerId) => {
+        if (acceptAnswer(answerId, question.id)) {
+          setQuestion({...question});
+          setAnswers([...answers]);
+        }
+      };
+
+      const navigate = (path) => {
+        window.location.hash = path;
+      };
+
+      if (!question) {
+        return <div className="container">Loading question...</div>;
+      }
+
+      const author = mockDB.users.find(u => u.id === question.authorId);
+      const userVoteQuestion = votedPosts.questions[question.id] || 0;
+
+      return (
+        <div>
+          <div className="card mb-4">
+            <div className="flex items-start gap-4">
+              <div className="flex flex-col items-center">
+                <button 
+                  className={`btn-vote ${userVoteQuestion === 1 ? 'upvoted' : ''}`}
+                  onClick={() => handleVoteQuestion(1)}
+                >
+                  <i className="fas fa-chevron-up fa-lg"></i>
+                </button>
+                <div className="text-xl font-bold my-1">{question.votes}</div>
+                <button 
+                  className={`btn-vote ${userVoteQuestion === -1 ? 'downvoted' : ''}`}
+                  onClick={() => handleVoteQuestion(-1)}
+                >
+                  <i className="fas fa-chevron-down fa-lg"></i>
+                </button>
+              </div>
+              
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold mb-2">{question.title}</h1>
+                <div className="mb-4">
+                  <div className="text-sm text-muted mb-2">
+                    Asked on {question.createdAt.toLocaleDateString()} • 
+                    Viewed {question.views} times
+                  </div>
+                  <div className="question-tags mb-4">
+                    {question.tags.map(tag => (
+                      <a key={tag} href={`#/tags/${tag}`} className="tag">
+                        {tag}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="prose max-w-none">
+                  {question.description.split('\n').map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+                
+                <div className="mt-4 pt-4 border-t">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <a href={`#/users/${author.id}`} className="font-medium">
+                        {author.name}
+                      </a>
+                      <div className="text-sm text-muted">
+                        {author.reputation} <span className="text-warning">•</span> {author.role}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mb-4">
+            <h2 className="text-xl font-bold">
+              {answers.length} {answers.length === 1 ? 'Answer' : 'Answers'}
+            </h2>
+          </div>
+          
+          {answers.map(answer => {
+            const answerAuthor = mockDB.users.find(u => u.id === answer.authorId);
+            const userVoteAnswer = votedPosts.answers[answer.id] || 0;
+            const isQuestionOwner = user && user.id === question.authorId;
+            
+            return (
+              <div 
+                key={answer.id} 
+                className={`card mb-4 ${answer.isAccepted ? 'accepted-answer' : ''}`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex flex-col items-center">
+                    <button 
+                      className={`btn-vote ${userVoteAnswer === 1 ? 'upvoted' : ''}`}
+                      onClick={() => handleVoteAnswer(answer.id, 1)}
+                    >
+                      <i className="fas fa-chevron-up fa-lg"></i>
+                    </button>
+                    <div className="text-xl font-bold my-1">{answer.votes}</div>
+                    <button 
+                      className={`btn-vote ${userVoteAnswer === -1 ? 'downvoted' : ''}`}
+                      onClick={() => handleVoteAnswer(answer.id, -1)}
+                    >
+                      <i className="fas fa-chevron-down fa-lg"></i>
+                    </button>
+                    
+                    {isQuestionOwner && !question.acceptedAnswerId && (
+                      <button 
+                        className="btn btn-sm mt-2"
+                        onClick={() => handleAcceptAnswer(answer.id)}
+                      >
+                        <i className="fas fa-check"></i> Accept
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="prose max-w-none">
+                      {answer.content.split('\n').map((para, i) => (
+                        <p key={i}>{para}</p>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-4 pt-4 border-t">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <a href={`#/users/${answerAuthor.id}`} className="font-medium">
+                            {answerAuthor.name}
+                          </a>
+                          <div className="text-sm text-muted">
+                            {answerAuthor.reputation} <span className="text-warning">•</span> {answerAuthor.role}
+                          </div>
+                        </div>
+                        <div className="text-sm text-muted">
+                          Answered on {answer.createdAt.toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          
+          {user ? (
+            <div className="card">
+              <h2 className="text-xl font-bold mb-4">Your Answer</h2>
+              
+              {error && <div className="error mb-4">{error}</div>}
+              
+              <form onSubmit={handleSubmitAnswer}>
+                <div className="form-group">
+                  <textarea
+                    className="form-control"
+                    value={answerContent}
+                    onChange={(e) => setAnswerContent(e.target.value)}
+                    placeholder="Write your answer here..."
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  Post Answer
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="card text-center">
+              <p className="mb-2">You need to login to answer this question.</p>
+              <button 
+                className="btn btn-primary"
+                onClick={() => navigate('#/login')}
+              >
+                Login
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const AskQuestion = () => {
+      const [title, setTitle] = useState('');
+      const [description, setDescription] = useState('');
+      const [tags, setTags] = useState('');
+      const [error, setError] = useState('');
+      const { user } = useAuth();
+      
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        if (!title || title.length < 10) {
+          setError('Title must be at least 10 characters');
+          return;
+        }
+        
+        if (!description || description.length < 20) {
+          setError('Description must be at least 20 characters');
+          return;
+        }
+        
+        if (!tags) {
+          setError('At least one tag is required');
+          return;
+        }
+        
+        const tagArray = tags.split(',').map(tag => tag.trim());
+        
+        const newQuestion = {
+          id: `q${mockDB.questions.length + 1}`,
+          title,
+          description,
+          tags: tagArray,
+          authorId: user.id,
+          votes: 0,
+          views: 0,
+          answers: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        
+        mockDB.questions.push(newQuestion);
+        window.location.hash = `#/question/${newQuestion.id}`;
+      };
+      
+      const navigate = (path) => {
+        window.location.hash = path;
+      };
+
+      if (!user) {
+        return (
+          <div className="container">
+            <div className="card text-center">
+              <p className="mb-4">You need to login to ask a question.</p>
+              <button 
+                className="btn btn-primary"
+                onClick={() => navigate('#/login')}
+              >
+                Login
+              </button>
+            </div>
+          </div>
+        );
+      }
+      
+      return (
+        <div className="container">
+          <div className="card">
+            <h1 className="text-2xl font-bold mb-4">Ask a Question</h1>
+            
+            {error && <div className="error mb-4">{error}</div>}
+            
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label">Title</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="What's your programming question?"
+                />
+                <div className="text-sm text-muted mt-1">
+                  Be specific and imagine you're asking a question to another person
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Description</label>
+                <textarea
+                  className="form-control"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Provide details about your question, including any code snippets or error messages"
+                />
+                <div className="text-sm text-muted mt-1">
+                  Include all the information someone would need to answer your question
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Tags</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  placeholder="react,javascript,performance"
+                />
+                <div className="text-sm text-muted mt-1">
+                  Add up to 5 tags separated by commas to describe your question
+                </div>
+              </div>
+              
+              <button type="submit" className="btn btn-primary">
+                Post Question
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    // Auth Components
+    const Login = () => {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [error, setError] = useState('');
+      const { login } = useAuth();
+      
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        if (login(email, password)) {
+          window.location.hash = '';
+        } else {
+          setError('Invalid email or password');
+        }
+      };
+      
+      const navigate = (path) => {
+        window.location.hash = path;
+      };
+
+      return (
+        <div className="container">
+          <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
+            <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
+            
+            {error && <div className="error mb-4">{error}</div>}
+            
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <button type="submit" className="btn btn-primary w-full mb-4">
+                Login
+              </button>
+              
+              <div className="text-center">
+                Don't have an account?{' '}
+                <a 
+                  href="#register" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('#/register');
+                  }}
+                >
+                  Register
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    const Register = () => {
+      const [name, setName] = useState('');
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [error, setError] = useState('');
+      const { register } = useAuth();
+      
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        if (register(name, email, password)) {
+          window.location.hash = '';
+        } else {
+          setError('Registration failed. Please try again.');
+        }
+      };
+      
+      const navigate = (path) => {
+        window.location.hash = path;
+      };
+
+      return (
+        <div className="container">
+          <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
+            <h1 className="text-2xl font-bold mb-4 text-center">Register</h1>
+            
+            {error && <div className="error mb-4">{error}</div>}
+            
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label">Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength="6"
+                />
+              </div>
+              
+              <button type="submit" className="btn btn-primary w-full mb-4">
+                Register
+              </button>
+              
+              <div className="text-center">
+                Already have an account?{' '}
+                <a 
+                  href="#login" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('#/login');
+                  }}
+                >
+                  Login
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    // Main App
+    const App = () => {
+      const [route, setRoute] = useState(window.location.hash);
+      
+      useEffect(() => {
+        const handleHashChange = () => {
+          setRoute(window.location.hash);
+        };
+        
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+      }, []);
+      
+      let content;
+      switch (route) {
+        case '#/ask':
+          content = <AskQuestion />;
+          break;
+        case '#/login':
+          content = <Login />;
+          break;
+        case '#/register':
+          content = <Register />;
+          break;
+        default:
+          if (route.startsWith('#/question/')) {
+            const questionId = route.split('/')[2];
+            content = <QuestionDetail questionId={questionId} />;
+          } else if (route.startsWith('#/tags/')) {
+            const tagName = route.split('/')[2];
+            content = <QuestionList tagFilter={tagName} />;
+          } else {
+            content = <QuestionList />;
+          }
+      }
+      
+      return (
+        <AuthProvider>
+          <Navbar />
+          <div className="container main-layout">
+            <Sidebar />
+            <main>
+              {content}
+            </main>
+          </div>
+        </AuthProvider>
+      );
+    };
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
